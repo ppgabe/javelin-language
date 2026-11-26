@@ -90,6 +90,81 @@ static void write_csv_text(FILE *out, const char *text, const int length) {
     fputc('"', out);
 }
 
+static int pretty_flush_table(const TokenTable *table, const char *path) {
+    FILE *out = fopen(path, "w");
+    if (!out) {
+        perror(path);
+
+        return 0;
+    }
+
+    int column_width = (int)strlen("TOKEN TYPE");
+    int lexeme_width = (int)strlen("LEXEME");
+
+    for (size_t i = 0; i < table->count; i++) {
+        const Token *t = &table->tokens[i];
+
+        int type_len = (int)strlen(token_type_name(t->type));
+        if (type_len > column_width) {
+            column_width = type_len;
+        }
+
+        int len = 0;
+        for (int j = 0; j < t->length; j++) {
+            if (t->lexeme[j] == '\n' || t->lexeme[j] == '\t' || t->lexeme[j] == '\r') {
+                len += 2;
+            }
+            else {
+                len++;
+            }
+        }
+
+        if (len > lexeme_width) {
+            lexeme_width = len;
+        }
+    }
+
+    int separator_width = column_width + lexeme_width + 2;
+
+    for (int i = 0; i < separator_width; i++) {
+        fputc('-', out);
+    }
+    fputc('\n', out);
+
+    fprintf(out, "%-*s  %s\n", column_width, "TOKEN TYPE", "LEXEME");
+
+    for (int i = 0; i < separator_width; i++) {
+        fputc('-', out);
+    }
+    fputc('\n', out);
+
+    for (size_t i = 0; i < table->count; i++) {
+        const Token *t = &table->tokens[i];
+
+        fprintf(out, "%-*s  ", column_width, token_type_name(t->type));
+
+        write_csv_text(out, t->lexeme, t->length);
+
+        if (t->type == TOKEN_INVALID && t->error) {
+            write_csv_text(out, t->error, (int)strlen(t->error));
+        }
+
+        fputc('\n', out);
+    }
+
+    for (int i = 0; i < separator_width; i++) {
+        fputc('-', out);
+    }
+
+    if (fclose(out) != 0) {
+        perror(path);
+
+        return 0;
+    }
+
+    return 1;
+}
+
 static int flush_table(const TokenTable *table, const char *path) {
     FILE *out = fopen(path, "w");
     if (!out) {
@@ -279,8 +354,23 @@ int lexer(const char *source, const char *filename) {
         } else {
             status = 1;
         }
+    } else {
+        status = 1;
+    }
 
-        free(symb_path);
+    const size_t pretty_path_length = strlen(filename) + strlen(".pretty.symb") + 1;
+    char *pretty_symb_path = malloc(path_length);
+
+    if (pretty_symb_path) {
+        snprintf(pretty_symb_path, pretty_path_length, "%s.pretty.symb", filename);
+
+        if (pretty_flush_table(&table, pretty_symb_path)) {
+            printf("Pretty printed %zu tokens to %s\n", table.count, pretty_symb_path);
+        } else {
+            status = 1;
+        }
+
+        free(pretty_symb_path);
     } else {
         status = 1;
     }
