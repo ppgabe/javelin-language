@@ -290,7 +290,7 @@ static void release_symbol_token(void *context, Token *token) {
 
 static int has_symbol_table_extension(const char *path) {
     size_t length = strlen(path);
-    return length >= 5 && strcmp(path + length - 5, ".symb") == 0;
+    return length >= 10 && strcmp(path + length - 10, ".jvln.symb") == 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -302,7 +302,7 @@ int main(int argc, char *argv[]) {
         else table_count++;
     }
     if (table_count == 0) {
-        fprintf(stderr, "USAGE: jvl_parser [--show-parse-tree] [symbol-table.symb ...]\n");
+        fprintf(stderr, "USAGE: jvl_parser [--show-parse-tree] [symbol-table.jvln.symb ...]\n");
         return 1;
     }
 
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "--show-parse-tree") == 0) continue;
         const char *path = argv[i];
         if (!has_symbol_table_extension(path)) {
-            fprintf(stderr, "jvl_parser only accepts symbol tables produced by jvlex (.symb): '%s'\n", path);
+            fprintf(stderr, "jvl_parser only accepts symbol tables produced by jvlex (.jvln.symb): '%s'\n", path);
             exit_status = 2;
             continue;
         }
