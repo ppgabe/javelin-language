@@ -9,6 +9,17 @@
 
 static void error_at_current(Parser *p, const char *msg);
 
+static Token read_lexer_token(void *context) {
+    return next_token(context);
+}
+
+static void release_lexer_token(void *context, Token *token) {
+    (void) context;
+    if (token->type == TOKEN_STRING_LIT) {
+        free(token->string_val);
+    }
+}
+
 static void print_error_context(const char *source, const Token *t) {
     if (!source || t->line <= 0) return;
 
@@ -50,8 +61,9 @@ static void print_error_context(const char *source, const Token *t) {
 
 static Token next_significant_token(Parser *p) {
     for (;;) {
-        Token t = next_token(p->lexer);
+        Token t = p->read_token(p->token_context);
         if (t.type == TOKEN_COMMENT || t.type == TOKEN_NOISE) {
+            p->release_token(p->token_context, &t);
             continue;
         }
         if (t.type == TOKEN_INVALID) {
@@ -59,7 +71,7 @@ static Token next_significant_token(Parser *p) {
                     p->filename, t.line, t.column,
                     t.error ? t.error : "invalid token",
                     t.length, t.lexeme ? t.lexeme : "");
-            print_error_context(p->lexer->source, &t);
+            print_error_context(p->source, &t);
             p->had_error = true;
             return t;
         }
@@ -75,7 +87,18 @@ static bool is_type_token(TokenType type) {
 }
 
 void parser_init(Parser *p, LexerState *l, const char *filename, bool show_parse_tree) {
-    p->lexer = l;
+    parser_init_token_stream(p, read_lexer_token, release_lexer_token, l,
+                             l->source, filename, show_parse_tree);
+}
+
+void parser_init_token_stream(Parser *p, ParserTokenReader read_token,
+                              ParserTokenReleaser release_token, void *context,
+                              const char *source, const char *filename,
+                              bool show_parse_tree) {
+    p->read_token = read_token;
+    p->release_token = release_token;
+    p->token_context = context;
+    p->source = source;
     p->filename = filename ? filename : "<input>";
     p->had_error = false;
     p->recovering = false;
@@ -83,6 +106,11 @@ void parser_init(Parser *p, LexerState *l, const char *filename, bool show_parse
     p->depth = 0;
     p->current = next_significant_token(p);
     p->next = next_significant_token(p);
+}
+
+void parser_dispose(Parser *p) {
+    p->release_token(p->token_context, &p->current);
+    p->release_token(p->token_context, &p->next);
 }
 
 static void print_indent(int depth) {
@@ -113,9 +141,7 @@ static void advance(Parser *p) {
                p->current.length,
                p->current.lexeme ? p->current.lexeme : "");
     }
-    if (p->current.type == TOKEN_STRING_LIT) {
-        free(p->current.string_val);
-    }
+    p->release_token(p->token_context, &p->current);
     p->current = p->next;
     p->next = next_significant_token(p);
 }
@@ -142,7 +168,7 @@ static void error_at_current(Parser *p, const char *msg) {
             p->filename, p->current.line, p->current.column, msg,
             token_type_name(p->current.type),
             p->current.length, p->current.lexeme ? p->current.lexeme : "");
-    print_error_context(p->lexer->source, &p->current);
+    print_error_context(p->source, &p->current);
     p->had_error = true;
 }
 

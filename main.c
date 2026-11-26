@@ -91,6 +91,7 @@ int main(int argc, char *argv[]) {
             exit_status = 1;
         }
 
+        parser_dispose(&parser);
         free(source);
     }
 

@@ -9,3 +9,6 @@ add_library(jvl_parse_lib STATIC
 
 target_include_directories(jvl_parse_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(jvl_parse_lib PUBLIC jvlex_lib)
+
+add_executable(jvl_parser main.c)
+target_link_libraries(jvl_parser PRIVATE jvl_parse_lib)
