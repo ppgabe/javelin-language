@@ -210,7 +210,18 @@ Token scan_identifier(LexerState *l) {
             break;
 
         case 'c': // State I_C
-            if (peek(l) == 'h') { // State I_CH
+            if (peek(l) == 'a') {
+                advance(l);
+                if (peek(l) == 's') {
+                    advance(l);
+                    if (peek(l) == 'e') {
+                        advance(l);
+                        if (!is_ident_char(peek(l))) {
+                            return make_token(l, TOKEN_RW_CASE, start, start_line, start_col);
+                        }
+                    }
+                }
+            } else if (peek(l) == 'h') { // State I_CH
                 advance(l);
                 if (peek(l) == 'a') { // State I_CHA
                     advance(l);
@@ -248,7 +259,27 @@ Token scan_identifier(LexerState *l) {
             break;
 
         case 'd': // State I_D
-            if (peek(l) == 'i') { // State I_DI
+            if (peek(l) == 'e') {
+                advance(l);
+                if (peek(l) == 'f') {
+                    advance(l);
+                    if (peek(l) == 'a') {
+                        advance(l);
+                        if (peek(l) == 'u') {
+                            advance(l);
+                            if (peek(l) == 'l') {
+                                advance(l);
+                                if (peek(l) == 't') {
+                                    advance(l);
+                                    if (!is_ident_char(peek(l))) {
+                                        return make_token(l, TOKEN_RW_DEFAULT, start, start_line, start_col);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (peek(l) == 'i') { // State I_DI
                 advance(l);
                 if (peek(l) == 'v') { // State I_DIV
                     advance(l);
@@ -776,6 +807,10 @@ Token scan_operator(LexerState *l) {
             if (peek(l) == '=') {
                 advance(l);
                 return make_token(l, TOKEN_OP_SUB_ASSIGN, start, start_line, start_col);
+            }
+            if (peek(l) == '>') {
+                advance(l);
+                return make_token(l, TOKEN_ARROW, start, start_line, start_col);
             }
             return make_token(l, TOKEN_OP_SUB, start, start_line, start_col);
 
