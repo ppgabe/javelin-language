@@ -35,7 +35,21 @@ static char *read_file(const char *path) {
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        fprintf(stderr, "USAGE: jvlnc [filename ...]\n");
+        fprintf(stderr, "USAGE: jvlnc [--show-parse-tree] [filename ...]\n");
+        return 1;
+    }
+
+    bool show_parse_tree = false;
+    int source_count = 0;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--show-parse-tree") == 0) {
+            show_parse_tree = true;
+        } else {
+            source_count++;
+        }
+    }
+    if (source_count == 0) {
+        fprintf(stderr, "USAGE: jvlnc [--show-parse-tree] [filename ...]\n");
         return 1;
     }
 
@@ -47,6 +61,9 @@ int main(int argc, char *argv[]) {
     int exit_status = 0;
 
     for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--show-parse-tree") == 0) {
+            continue;
+        }
         const char *path = argv[i];
 
         if (!has_jvln_extension(path)) {
@@ -65,7 +82,7 @@ int main(int argc, char *argv[]) {
         lexer_init(&lexer, source);
 
         Parser parser;
-        parser_init(&parser, &lexer, path);
+        parser_init(&parser, &lexer, path, show_parse_tree);
 
         if (parse_program(&parser)) {
             printf("Syntax analysis succeeded: '%s'\n", path);

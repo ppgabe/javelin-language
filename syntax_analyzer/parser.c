@@ -74,11 +74,12 @@ static bool is_type_token(TokenType type) {
            type == TOKEN_RW_BOOL;
 }
 
-void parser_init(Parser *p, LexerState *l, const char *filename) {
+void parser_init(Parser *p, LexerState *l, const char *filename, bool show_parse_tree) {
     p->lexer = l;
     p->filename = filename ? filename : "<input>";
     p->had_error = false;
     p->recovering = false;
+    p->show_parse_tree = show_parse_tree;
     p->depth = 0;
     p->current = next_significant_token(p);
     p->next = next_significant_token(p);
@@ -91,7 +92,7 @@ static void print_indent(int depth) {
 }
 
 static void trace_enter(Parser *p, const char *rule) {
-    if (!p->recovering) {
+    if (p->show_parse_tree && !p->recovering) {
         print_indent(p->depth);
         printf("%s\n", rule);
     }
@@ -105,7 +106,7 @@ static void trace_exit(Parser *p) {
 }
 
 static void advance(Parser *p) {
-    if (!p->recovering && p->current.type != TOKEN_EOF) {
+    if (p->show_parse_tree && !p->recovering && p->current.type != TOKEN_EOF) {
         print_indent(p->depth);
         printf("%s ('%.*s')\n",
                token_type_name(p->current.type),
