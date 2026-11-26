@@ -7,3 +7,7 @@ add_executable(jvlex lexer/main.c
         lexer/lexer.c
         lexer/lexer.h
         lexer/tokens.h)
+
+add_executable(jvl_parse
+        syntax_analyzer/parser.c
+        syntax_analyzer/parser.h)
