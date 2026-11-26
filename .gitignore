@@ -1,4 +1,5 @@
 *.symb
+.jj
 
 # Build output
 cmake-build-*/
