@@ -39,6 +39,8 @@ typedef enum {
     TOKEN_KW_VAR,
     TOKEN_KW_WHEN,
     TOKEN_KW_WHILE,
+    TOKEN_KW_CASE,
+    TOKEN_KW_DEFAULT,
 
     // RESERVED WORDS
     TOKEN_RW_BOOL,
@@ -46,8 +48,6 @@ typedef enum {
     TOKEN_RW_DOUBLE,
     TOKEN_RW_INT,
     TOKEN_RW_RECORD,
-    TOKEN_RW_CASE,
-    TOKEN_RW_DEFAULT,
 
     // OPERATORS
     TOKEN_OP_AND,
