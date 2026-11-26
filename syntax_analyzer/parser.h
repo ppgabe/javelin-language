@@ -10,12 +10,15 @@
 
 typedef struct {
     LexerState *lexer;
+    const char *filename;
     Token current;
     Token next;
     bool had_error;
+    bool recovering;
+    int depth;
 } Parser;
 
-void parser_init(Parser *p, LexerState *l);
+void parser_init(Parser *p, LexerState *l, const char *filename);
 bool parse_program(Parser *p);
 
 #endif //JVLNC_PARSER_H

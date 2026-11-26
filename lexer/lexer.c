@@ -217,7 +217,7 @@ Token scan_identifier(LexerState *l) {
                     if (peek(l) == 'e') {
                         advance(l);
                         if (!is_ident_char(peek(l))) {
-                            return make_token(l, TOKEN_RW_CASE, start, start_line, start_col);
+                            return make_token(l, TOKEN_KW_CASE, start, start_line, start_col);
                         }
                     }
                 }
@@ -272,7 +272,7 @@ Token scan_identifier(LexerState *l) {
                                 if (peek(l) == 't') {
                                     advance(l);
                                     if (!is_ident_char(peek(l))) {
-                                        return make_token(l, TOKEN_RW_DEFAULT, start, start_line, start_col);
+                                        return make_token(l, TOKEN_KW_DEFAULT, start, start_line, start_col);
                                     }
                                 }
                             }

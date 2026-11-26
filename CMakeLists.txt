@@ -3,11 +3,8 @@ project(jvlnc C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(jvlex lexer/main.c
-        lexer/lexer.c
-        lexer/lexer.h
-        lexer/tokens.h)
+add_subdirectory(lexer)
+add_subdirectory(syntax_analyzer)
 
-add_executable(jvl_parse
-        syntax_analyzer/parser.c
-        syntax_analyzer/parser.h)
+add_executable(jvlnc main.c)
+target_link_libraries(jvlnc PRIVATE jvl_parse_lib)

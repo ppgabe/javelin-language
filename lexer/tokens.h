@@ -70,7 +70,7 @@ typedef enum {
     TOKEN_OP_ASSIGN,
     TOKEN_OP_SUB_ASSIGN,
     TOKEN_OP_ADD_ASSIGN,
-    TOKEN_ARROW
+    TOKEN_ARROW,
 
     // DELIMITERS AND BRACKETS
     TOKEN_SEMICOLON,
@@ -124,6 +124,8 @@ static inline const char *token_type_name(const TokenType type) {
         case TOKEN_KW_VAR: return "KW_VAR";
         case TOKEN_KW_WHEN: return "KW_WHEN";
         case TOKEN_KW_WHILE: return "KW_WHILE";
+        case TOKEN_KW_CASE: return "KW_CASE";
+        case TOKEN_KW_DEFAULT: return "KW_DEFAULT";
         case TOKEN_RW_BOOL: return "RW_BOOL";
         case TOKEN_RW_CHAR: return "RW_CHAR";
         case TOKEN_RW_DOUBLE: return "RW_DOUBLE";
@@ -149,6 +151,7 @@ static inline const char *token_type_name(const TokenType type) {
         case TOKEN_OP_ASSIGN: return "OP_ASSIGN";
         case TOKEN_OP_SUB_ASSIGN: return "OP_SUB_ASSIGN";
         case TOKEN_OP_ADD_ASSIGN: return "OP_ADD_ASSIGN";
+        case TOKEN_ARROW: return "ARROW";
         case TOKEN_SEMICOLON: return "SEMICOLON";
         case TOKEN_COMMA: return "COMMA";
         case TOKEN_COLON: return "COLON";

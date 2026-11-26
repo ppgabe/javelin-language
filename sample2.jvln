@@ -1,28 +1,83 @@
+record MyStruct(val a: int, val b: int) {}
+
 # This is a more involved Javelin source file.
 fun main() {
+    val z = 1;
     val a = 0xFF;
     val b = 0b1010;
-    val sumOfBoth = sum(a, b);
+    var sumOfBoth = sum(a, b); # Inferred int type
+    val myDouble = 1D;
+    val expoIDENTnential = 1e-16;
+    val decimal = 1.04;
+    val myChar = 'A';
+    val printStatement = "This is a print statement"; # Inferred String type
 
-    if (sumOfBoth > 10) {
+    val ident = true;
+
+    val unclosed = "This is unclosed";
+    val myBool = true;
+    val concat = "test" + 1;
+
+    # IF and WHILE statements
+    var condition = false;
+    if (sumOfBoth > 10 and a > 0 and not condition) then {
         println("The sum is greater than 10");
-    } else {
+        condition = true;
+    } else then {
         println("The sum is less than or equal to 10");
     }
 
-    val modulo = sumOfBoth % 3;
-    println(modulo);
-    println("This is a print statement");
-
-    val condition: bool = true;
-
     val index = 1;
-    while (bool and index < 11) {
+    while (myBool) {
         println(i);
         i += 1;
+        continue;
+
+        if (index == 10) {
+            myBool = false;
+            break;
+        }
     }
+
+    val integerDivision = 1 div 4;
+    val allTheOperators = 1 + 2 * 3 - 4 / 5 ^ 2;
+
+    integerDivision += 4;
+    integerDivision -= 4;
+
+    # These will try to cast variables to other types
+    val integerAsDouble = integerDivision as double;
+    val safeIntegerAsDouble = integerDivision as? double;
+    val reservedChar = 'a' as char;
+    val reservedInt = 1 as int;
+    val reservedBool = true as bool;
+
+    println("This is a print statement");
+
+    val condition = true;
+
+    val otherIndex = 0;
+    do {
+        println(Hi);
+        otherIndex += 1;
+    } while (otherIndex < 10);
+
+    if (1 == 2 or 1 < 0 or 1 <= 0 or 1 > 2 or 1 >= 2 and 1 != 1) {
+        println("This is broken!");
+    }
+
+    val userInput = readln("Enter your name: ");
+    print("Hi there, ");
+    print(userInput);
+    print("!");
+
+    when (integerDivision) {
+        case 1 -> println("One");
+        case 2 -> println("Two");
+        default -> { break; }
+    };
 }
 
-fun sum(a: int, b: int) {
+fun sum(var a: int, var b: int) {
     return a + b;
 }
