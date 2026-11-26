@@ -36,6 +36,7 @@ static char peek(const LexerState *l) {
 static char advance(LexerState *l) {
     char c = *l->cursor++;
 
+    // Keep source locations in step with the cursor for later diagnostics.
     if (c == '\n') {
         l->line++;
         l->column = 1;
@@ -157,6 +158,8 @@ Token scan_identifier(LexerState *l) {
     const int start_line = l->line;
     const int start_col = l->column;
 
+    // Keyword paths accept a match only at an identifier boundary; otherwise
+    // the whole word falls through to TOKEN_IDENT below.
     switch (advance(l)) { // State START
         case 'a': // State I_A
             if (peek(l) == 'n') { // State I_AN
@@ -651,7 +654,7 @@ Token scan_number(LexerState *l) {
     return token;
 }
 
-// Reads the character after a backslash
+// On failure, the caller skips to the end of the literal before scanning again.
 static int read_escape(LexerState *l, char *out) {
     const char c = peek(l);
 
@@ -673,7 +676,8 @@ static int read_escape(LexerState *l, char *out) {
     }
 }
 
-// Skips the remainder of a malformed char/string literal so lexing can resume after it
+// Consume through the closing quote so a malformed literal doesn't split into
+// extra tokens on the next scan.
 static Token recover_literal(LexerState *l, const char *start, const int line, const int col, const char quote,
                              const char *error) {
     while (peek(l) != '\0' && peek(l) != '\n') {

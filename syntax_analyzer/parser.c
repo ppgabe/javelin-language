@@ -1,7 +1,3 @@
-//
-// Created by ppgabe on 11/26/26.
-//
-
 #include "parser.h"
 
 #include <stdio.h>
@@ -63,6 +59,7 @@ static Token next_significant_token(Parser *p) {
     for (;;) {
         Token t = p->read_token(p->token_context);
         if (t.type == TOKEN_COMMENT || t.type == TOKEN_NOISE) {
+            // These tokens never reach the grammar, so release them here.
             p->release_token(p->token_context, &t);
             continue;
         }
@@ -141,6 +138,8 @@ static void advance(Parser *p) {
                p->current.length,
                p->current.lexeme ? p->current.lexeme : "");
     }
+    // The old current token is no longer needed; next becomes current without
+    // being copied, and only then do we ask the stream for another token.
     p->release_token(p->token_context, &p->current);
     p->current = p->next;
     p->next = next_significant_token(p);
@@ -183,7 +182,7 @@ static void synchronize(Parser *p) {
         }
         if (p->current.type == TOKEN_RBRACE) {
             p->recovering = false;
-            return; // Stop before '}' so parse_block() consumes it
+            return; // Leave the closing brace for parse_block().
         }
         switch (p->current.type) {
             case TOKEN_KW_FUN:
@@ -466,8 +465,8 @@ static void parse_assign_expr(Parser *p) {
         (p->next.type == TOKEN_OP_ASSIGN ||
          p->next.type == TOKEN_OP_ADD_ASSIGN ||
          p->next.type == TOKEN_OP_SUB_ASSIGN)) {
-        advance(p); // consume <id>
-        advance(p); // consume <assign_ops>
+        advance(p);
+        advance(p);
         parse_expr(p);
     } else {
         parse_or_expr(p);
@@ -666,7 +665,7 @@ static void parse_stmt(Parser *p) {
         parse_standalone_stmt(p);
     }
 
-    // Panic! Move to the boundary.
+    // Resume at a statement boundary so one bad statement doesn't hide the rest.
     if (p->had_error) {
         synchronize(p);
     }

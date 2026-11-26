@@ -34,6 +34,8 @@ static char *read_csv_record(FILE *file, int *malformed) {
     int ch;
     *malformed = 0;
 
+    // A quoted field may contain commas or newlines; only an unquoted newline
+    // ends a table row.
     while ((ch = fgetc(file)) != EOF) {
         if (ch == '"') {
             if (!append_char(&record, &length, &capacity, ch)) goto fail;
@@ -96,6 +98,7 @@ static int parse_csv_fields(const char *record, char **fields, size_t expected_c
                 }
                 if (*cursor == '"') {
                     if (cursor[1] == '"') {
+                        // CSV represents a quote inside a quoted field as "".
                         field[length++] = '"';
                         cursor += 2;
                     } else {
@@ -272,12 +275,14 @@ static Token read_symbol_token(void *context) {
         return invalid_table_token(reader);
     }
 
+    // Keep table order tied to the row index; the parser consumes one row at a time.
     reader->expected_index++;
     return token;
 }
 
 static void release_symbol_token(void *context, Token *token) {
     (void) context;
+    // The CSV reader allocates each token's text independently.
     free((void *) token->lexeme);
     free((void *) token->error);
     if (token->type == TOKEN_STRING_LIT) free(token->string_val);

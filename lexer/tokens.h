@@ -1,7 +1,3 @@
-//
-// Created by Gabriel Virrey on 10/29/26.
-//
-
 #ifndef JAVELIN_LEXER_TOKENS_H
 #define JAVELIN_LEXER_TOKENS_H
 

@@ -6,7 +6,7 @@
 
 static long get_file_size(FILE *file);
 
-// Exit status used by lexer when invalid tokens were encountered
+// jvlex uses this status when it wrote a table but found invalid tokens.
 #define LEXER_INVALID_TOKENS 3
 
 static int lexer(const char *source, const char *filename);
@@ -23,7 +23,6 @@ static void table_init(TokenTable *table) {
     table->capacity = 0;
 }
 
-// Appends a token to the table in encounter order.
 static int table_append(TokenTable *table, const Token token) {
     if (table->count == table->capacity) {
         const size_t new_capacity = table->capacity == 0 ? 64 : table->capacity * 2;
@@ -135,7 +134,6 @@ static int flush_table(const TokenTable *table, const char *path) {
     return 1;
 }
 
-// Set when --debug is passed
 static int debug_enabled = 0;
 
 int main(int argc, char *argv[]) {
@@ -194,7 +192,6 @@ int main(int argc, char *argv[]) {
             return 2;
         }
 
-        // Open the file as read-only in binary mode
         FILE *input_file = fopen(argv[i], "rb");
         if (!input_file) {
             perror(argv[i]);
@@ -209,8 +206,8 @@ int main(int argc, char *argv[]) {
 
         char *buffer = malloc(file_size + 1);
 
-        size_t bytes_read = fread(buffer, 1, file_size, input_file); // Read the file into a contiguous memory block
-        buffer[bytes_read] = '\0'; // Add a null terminator at the end as our sentinel
+        size_t bytes_read = fread(buffer, 1, file_size, input_file);
+        buffer[bytes_read] = '\0';
 
         const int status = lexer(buffer, argv[i]);
         if (status > exit_status) {
