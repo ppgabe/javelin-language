@@ -75,3 +75,8 @@ static void synchronize(Parser *p) {
         }
     }
 }
+
+static void parse_expr(Parser *p);
+static void parse_stmt(Parser *p);
+static void parse_block(Parser *p);
+static void parse_if_stmt(Parser *p);
